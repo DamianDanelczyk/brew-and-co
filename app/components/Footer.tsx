@@ -33,9 +33,8 @@ export default function Footer() {
               <p className="font-semibold mb-2" style={{ color: "#F8F1E6" }}>
                 Opening Hours
               </p>
-              <p>Mon – Fri: 7:00 AM – 7:00 PM</p>
-              <p>Saturday: 8:00 AM – 8:00 PM</p>
-              <p>Sunday: 9:00 AM – 6:00 PM</p>
+              <p>Mon – Fri: 6:00 AM – 8:00 PM</p>
+              <p>Saturday: 7:00 AM – 9:00 PM</p>
             </div>
           </div>
 
