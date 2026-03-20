@@ -7,10 +7,15 @@ interface ReservationModalProps {
   onClose: () => void;
 }
 
-type FormState = "idle" | "submitting" | "success";
+type FormState = "idle" | "submitting" | "success" | "error";
 
 export default function ReservationModal({ isOpen, onClose }: ReservationModalProps) {
   const [formState, setFormState] = useState<FormState>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [name, setName] = useState("");
+  const [partySize, setPartySize] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const today = new Date().toISOString().split("T")[0];
 
   // Body scroll lock + Escape key
@@ -34,10 +39,28 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
     }
   }, [isOpen]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormState("submitting");
-    setTimeout(() => setFormState("success"), 600);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guestName: name,
+          groupSize: Number(partySize),
+          bookingTime: `${date} at ${time}`,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Request failed");
+      setFormState("success");
+    } catch {
+      setErrorMessage("Something went wrong. Please try again.");
+      setFormState("error");
+    }
   }
 
   if (!isOpen) return null;
@@ -122,6 +145,8 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   type="text"
                   required
                   placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full h-11 px-4 rounded-xl text-sm outline-none transition-shadow duration-150"
                   style={{
                     border: "1.5px solid #E2CBAD",
@@ -145,6 +170,8 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                 </label>
                 <select
                   required
+                  value={partySize}
+                  onChange={(e) => setPartySize(e.target.value)}
                   className="w-full h-11 px-4 rounded-xl text-sm outline-none transition-shadow duration-150 appearance-none"
                   style={{
                     border: "1.5px solid #E2CBAD",
@@ -175,6 +202,8 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   type="date"
                   required
                   min={today}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
                   className="w-full h-11 px-4 rounded-xl text-sm outline-none transition-shadow duration-150"
                   style={{
                     border: "1.5px solid #E2CBAD",
@@ -199,6 +228,8 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                 <input
                   type="time"
                   required
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
                   className="w-full h-11 px-4 rounded-xl text-sm outline-none transition-shadow duration-150"
                   style={{
                     border: "1.5px solid #E2CBAD",
@@ -215,6 +246,12 @@ export default function ReservationModal({ isOpen, onClose }: ReservationModalPr
                   }}
                 />
               </div>
+
+              {formState === "error" && (
+                <p className="text-sm text-center" style={{ color: "#C03A2A" }}>
+                  {errorMessage}
+                </p>
+              )}
 
               <button
                 type="submit"
