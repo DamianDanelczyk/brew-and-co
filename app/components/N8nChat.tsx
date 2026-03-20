@@ -21,6 +21,7 @@ export default function N8nChat() {
             footer: "",
             getStarted: "Start Chatting",
             inputPlaceholder: "Ask us anything…",
+            closeButtonTooltip: "Close chat",
           },
         },
       });
